@@ -1,8 +1,8 @@
 manifest_version: 1
-name: my dummy executor
-alias: MyDummyExecutor
-description: This is my dummy executor
+name: VideoTorchEncoder
+alias: VideoTorchEncoder
+description: An encoder that encodes video clips into a dense embedding using pretrained models
 author: Jina AI Dev-Team (dev-team@jina.ai)
-url: https://github.com/jina-ai/EXECUTOR_REPO_NAME
+url: https://github.com/jina-ai/executor-video-torch-encoder
 avatar: https://avatars.githubusercontent.com/u/60539444?s=200&v=4
-keywords: [encoder, Numpy]
+keywords: [encoder, torch, video, CV, computer vision]
