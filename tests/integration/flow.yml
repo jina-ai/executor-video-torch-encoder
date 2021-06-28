@@ -1,7 +1,8 @@
 jtype: Flow
 version: '1'
 with:
-  return_results: true
+  py_modules:
+    - video_torch_encoder.py
 executors:
   - name: encoder
     uses:

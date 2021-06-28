@@ -1,7 +1,7 @@
 __copyright__ = "Copyright (c) 2020-2021 Jina AI Limited. All rights reserved."
 __license__ = "Apache-2.0"
 
-from typing import Optional, Union, List, Any, Iterable, Dict
+from typing import Optional, List, Any, Iterable, Dict
 
 import torch
 import torch.nn as nn
@@ -53,7 +53,7 @@ class VideoTorchEncoder(Executor):
                  use_default_preprocessing: bool = True,
                  device: Optional[str] = None,
                  default_batch_size: int = 32,
-                 default_traversal_paths: Union[str, List[str]] = 'r',
+                 default_traversal_paths: List[str] = ['r'],
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not device:
