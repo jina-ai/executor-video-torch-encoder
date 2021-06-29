@@ -1,7 +1,7 @@
 # ✨ VideoTorchEncoder
 
-**VideoTorchEncoder** is a class that encodes video clips into dense embeddings using pretrained models from `torchvision.models` 
-for video data.
+**VideoTorchEncoder** is a class that encodes video clips into dense embeddings using pretrained models 
+from [`torchvision.models`](https://pytorch.org/docs/stable/torchvision/models.html) for video data.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -28,7 +28,8 @@ Use the prebuilt images from JinaHub in your python codes,
 ```python
 from jina import Flow
 	
-f = Flow().add(uses='jinahub+docker://VideoTorchEncoder')
+f = Flow().add(uses='jinahub+docker://VideoTorchEncoder',
+               volumes='/your_home_folder/.cache/torch:/root/.cache/torch')
 ```
 
 or in the `.yml` config.
@@ -38,6 +39,7 @@ jtype: Flow
 pods:
   - name: encoder
     uses: 'jinahub+docker://VideoTorchEncoder'
+    volumes: '/your_home_folder/.cache/torch:/root/.cache/torch'
 ```
 
 #### using source codes
@@ -92,7 +94,8 @@ pods:
 	```python
 	from jina import Flow
 	
-	f = Flow().add(uses='docker://video-torch-encoder-image:latest')
+	f = Flow().add(uses='docker://video-torch-encoder-image:latest',
+                   volumes='/your_home_folder/.cache/torch:/root/.cache/torch')
 	```
 	
 
@@ -101,17 +104,22 @@ pods:
 
 ```python
 from jina import Flow, Document
+from torchvision.io.video import read_video
 
 f = Flow().add(uses='jinahub+docker://VideoTorchEncoder')
 
+video_array, _, _ = read_video('your_video.mp4')  # video frames in the shape of `NumFrames x Height x Width x 3`
+
+video_array = video_array.cpu().detach().numpy()
+
 with f:
-    resp = f.post(on='foo', inputs=Document(), return_resutls=True)
-	print(f'{resp}')
+    resp = f.post(on='foo', inputs=[Document(blob=video_array),], return_resutls=True)
+    assert resp.data.doc[0].embedding.shape == (512,)
 ```
 
 ### Inputs 
 
-`Documents` must have `blob` of the shape `Channels x NumFrames x Height x Width` with `Height` and `Width` equals to 112, if no default preprocessing is requested. 
+`Documents` must have `blob` of the shape `Channels x NumFrames x 112 x 112`, if `use_default_preprocessing=False`.
 When setting `use_default_preprocessing=True`, the input `blob` must have the size of `Frame x Height x Width x Channel`.
 
 ### Returns
