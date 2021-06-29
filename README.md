@@ -73,7 +73,7 @@ pods:
 
 	```python
 	from jina import Flow
-	from from jinahub.encoder.video.video_torch_encoder import VideoTorchEncoder
+	from from jinahub.encoder.video_torch_encoder import VideoTorchEncoder
 	
 	f = Flow().add(uses=VideoTorchEncoder)
 	```
