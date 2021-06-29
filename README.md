@@ -73,7 +73,7 @@ pods:
 
 	```python
 	from jina import Flow
-	from from jinahub.encoder.video.video_torch_encoder import VideoTorchEncoder
+	from from jinahub.encoder.video_torch_encoder import VideoTorchEncoder
 	
 	f = Flow().add(uses=VideoTorchEncoder)
 	```
@@ -113,8 +113,8 @@ video_array, _, _ = read_video('your_video.mp4')  # video frames in the shape of
 video_array = video_array.cpu().detach().numpy()
 
 with f:
-    resp = f.post(on='foo', inputs=[Document(blob=video_array),], return_resutls=True)
-    assert resp.data.doc[0].embedding.shape == (512,)
+    resp = f.post(on='foo', inputs=[Document(blob=video_array), ], return_results=True)
+    assert resp[0].docs[0].embedding.shape == (512,)
 ```
 
 ### Inputs 

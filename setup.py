@@ -14,8 +14,8 @@ setuptools.setup(
         'Programming Language :: Python :: 3',
         'Operating System :: OS Independent',
     ],
-    py_modules=['jinahub.encoder.video.video_torch_encoder'],
-    package_dir={'jinahub.encoder.video': '.'},
+    py_modules=['jinahub.encoder.video_torch_encoder'],
+    package_dir={'jinahub.encoder': '.'},
     install_requires=open('requirements.txt').readlines(),
     python_requires='>=3.7',
 )
