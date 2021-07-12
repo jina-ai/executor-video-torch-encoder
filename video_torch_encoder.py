@@ -1,7 +1,7 @@
 __copyright__ = "Copyright (c) 2020-2021 Jina AI Limited. All rights reserved."
 __license__ = "Apache-2.0"
 
-from typing import Optional, List, Any, Iterable, Dict
+from typing import Optional, List, Any, Iterable, Dict, Tuple
 
 import torch
 import torch.nn as nn
@@ -10,6 +10,7 @@ import torchvision.models.video as models
 from torchvision import transforms
 
 from jina import Executor, DocumentArray, requests
+from jina_commons.batching import get_docs_batch_generator
 
 
 # https://github.com/pytorch/vision/blob/d391a0e992a35d7fb01e11110e2ccf8e445ad8a0/references/video_classification/transforms.py#L13
@@ -26,11 +27,6 @@ class ConvertFCHWtoCFHW(nn.Module):
         return vid.permute(1, 0, 2, 3)
 
 
-def _batch_generator(data: List[Any], batch_size: int):
-    for i in range(0, len(data), batch_size):
-        yield data[i: i + batch_size]
-
-
 class VideoTorchEncoder(Executor):
     """
     Encode `Document` content, using the models from `torchvision.models`.
@@ -45,7 +41,8 @@ class VideoTorchEncoder(Executor):
         - prevents training-serving gap.
     :param device: device to use for encoding ['cuda', 'cpu] - if not set, the device is detected automatically
     :param default_batch_size: fallback batch size in case there is not batch size sent in the request
-    :param default_traversal_paths: fallback traversal path in case there is not traversal path sent in the request
+    :param default_traversal_paths: fallback traversal path in case there is not traversal path sent in the request.
+        Defaults to ['r'], i.e. root level traversal.
     """
 
     def __init__(self,
@@ -53,7 +50,7 @@ class VideoTorchEncoder(Executor):
                  use_default_preprocessing: bool = True,
                  device: Optional[str] = None,
                  default_batch_size: int = 32,
-                 default_traversal_paths: List[str] = ['r'],
+                 default_traversal_paths: Tuple = ('r', ),
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not device:
@@ -102,17 +99,13 @@ class VideoTorchEncoder(Executor):
         `self.default_batch_size`.
         """
         if docs:
-            document_batches_generator = self._get_input_data(docs, parameters)
+            document_batches_generator = get_docs_batch_generator(
+                docs,
+                traversal_path=parameters.get('traversal_paths', self.default_traversal_paths),
+                batch_size=parameters.get('batch_size', self.default_batch_size),
+                needs_attr='blob'
+            )
             self._create_embeddings(document_batches_generator)
-
-    def _get_input_data(self, docs: DocumentArray, parameters: dict):
-        trav_paths = parameters.get('traversal_paths', self.default_traversal_paths)
-        batch_size = parameters.get('batch_size', self.default_batch_size)
-        # traverse thought all documents which have to be processed
-        flat_docs = docs.traverse_flat(trav_paths)
-        # filter out documents without images
-        filtered_docs = [doc for doc in flat_docs if doc.blob is not None]
-        return _batch_generator(filtered_docs, batch_size)
 
     def _create_embeddings(self, document_batches_generator: Iterable):
         with torch.no_grad():
