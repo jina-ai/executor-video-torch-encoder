@@ -1,7 +1,7 @@
 __copyright__ = "Copyright (c) 2020-2021 Jina AI Limited. All rights reserved."
 __license__ = "Apache-2.0"
 
-from typing import Optional, List, Any, Iterable, Dict
+from typing import Optional, List, Any, Iterable, Dict, Tuple
 
 import torch
 import torch.nn as nn
@@ -50,14 +50,14 @@ class VideoTorchEncoder(Executor):
                  use_default_preprocessing: bool = True,
                  device: Optional[str] = None,
                  default_batch_size: int = 32,
-                 default_traversal_paths: Optional[List[str]] = None,
+                 default_traversal_paths: Tuple = ('r', ),
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not device:
             device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.device = device
         self.default_batch_size = default_batch_size
-        self.default_traversal_paths = default_traversal_paths or ['r']
+        self.default_traversal_paths = default_traversal_paths
         self.model = getattr(models, model_name)(pretrained=True).eval().to(self.device)
         self.use_default_preprocessing = use_default_preprocessing
         if self.use_default_preprocessing:
