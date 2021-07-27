@@ -1,3 +1,5 @@
+MOVED TO https://github.com/jina-ai/executors/tree/main/jinahub/encoders/video/VideoTorchEncoder
+
 # ✨ VideoTorchEncoder
 
 **VideoTorchEncoder** is a class that encodes video clips into dense embeddings using pretrained models 
